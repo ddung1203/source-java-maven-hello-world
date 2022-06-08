@@ -1,6 +1,5 @@
 - hosts: ansible_host
   gather_facts: no
   
-
   tasks:
     - command: kubectl apply -f java-hello-world/kube_manifest/
