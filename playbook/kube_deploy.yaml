@@ -1,6 +1,46 @@
 - hosts: ansible_host
   gather_facts: no
   
-
   tasks:
-    - command: kubectl apply -f java-hello-world/kube_manifest/
+    - name: Create Deployment
+      k8s:
+        state: present
+        definition:
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: java-hello-world
+            namespace: default
+          spec:
+            replicas: 3
+            selector:
+              matchLabels:
+                app: java-hello-world
+            template:
+              metadata:
+                labels:
+                  app: java-hello-world
+              spec:
+                containers:
+                  - name: java-hello-world
+                    image: ddung1203/java-hello-world
+                    imagePullPolicy: Always
+                    ports:
+                      - containerPort: 8080 
+    - name: Create Service
+      k8s:
+        state: present
+        definition:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: java-hello-svc
+            namespace: default
+          spec:
+            type: NodePort
+            selector:
+              app: java-hello-world
+            ports:
+              - port: 80
+                targetPort: 8080
+                nodePort: 32123
